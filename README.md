@@ -202,21 +202,17 @@ In `~/github/tls/systemd/acme-renew.service`:
 
 ```ini
 [Unit]
-Description=acme.sh certificate renewal (deSEC alias mode)
+Description=Renew ACME certificates (acme.sh)
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=oneshot
 User=toto
-Environment=HOME=/home/toto
-Environment=LOGNAME=toto
-Environment=USER=toto
-WorkingDirectory=/home/toto/github/tls
-ExecStart=/bin/bash -lc '. ./acme-env.sh && ~/.acme.sh/acme.sh --cron'
-
-[Install]
-WantedBy=multi-user.target
+ExecStart=/home/toto/.acme.sh/acme.sh --cron --home /home/toto/.acme.sh
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=acme-renew
 ```
 
 ### 6.2 Create `systemd/acme-renew.timer`
