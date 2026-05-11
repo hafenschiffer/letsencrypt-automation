@@ -7,15 +7,15 @@ This repository contains all configuration and scripts needed to automatically o
 - `homeassistant.kuehl.one`
 - (optionally) more `*.kuehl.one` services like `pms.kuehl.one`
 
-Certificates are issued by Let’s Encrypt using `acme.sh` with DNS‑01 challenges via deSEC in **DNS alias mode**, because Strato’s DNS has no API. [memory:cite:104][memory:cite:105]
+Certificates are issued by Let’s Encrypt using `acme.sh` with DNS‑01 challenges via deSEC in **DNS alias mode**, because Strato’s DNS has no API.
 
-The resulting certificates are installed into `/etc/letsencrypt/live/kuehl.one/` and used by Caddy and other Docker services via volume mounts. [memory:cite:5][memory:cite:107]
+The resulting certificates are installed into `/etc/letsencrypt/live/kuehl.one/` and used by Caddy and other Docker services via volume mounts.
 
 ---
 
 ## How the DNS alias mode works
 
-Flow for `adguard.kuehl.one` (analogous for others): [memory:cite:104][memory:cite:105]
+Flow for `adguard.kuehl.one` (analogous for others):
 
 1. Let’s Encrypt asks for a TXT record at  
    `_acme-challenge.adguard.kuehl.one`.
@@ -46,15 +46,15 @@ Example when cloning this repo to `~/github/tls`:
 
 Outside the repo (on the system):
 
-- `~/.acme.sh/` – acme.sh installation and cached certs. [memory:cite:104][memory:cite:105]
-- `/etc/letsencrypt/live/kuehl.one/` – final certs used by Docker containers (mounted read‑only). [memory:cite:107]
+- `~/.acme.sh/` – acme.sh installation and cached certs.
+- `/etc/letsencrypt/live/kuehl.one/` – final certs used by Docker containers (mounted read‑only).
 
 ---
 
 ## Step 1: Prepare deSEC
 
 1. Go to [https://desec.io](https://desec.io) and create an account.  
-2. Register a domain or use your existing `klarwasser.dedyn.io` (already used in your setup). [memory:cite:105]
+2. Register a domain or use your existing `klarwasser.dedyn.io` (already used in your setup).
 3. In deSEC’s web UI, create an **API token** with permission to manage DNS records.
 
 Keep the token ready; it will be stored in a local env file on the Pi, not in Git.
@@ -63,7 +63,7 @@ Keep the token ready; it will be stored in a local env file on the Pi, not in Gi
 
 ## Step 2: Configure CNAMEs at Strato
 
-In Strato’s DNS panel for `kuehl.one`, create these CNAME records: [memory:cite:105][memory:cite:106][memory:cite:14]
+In Strato’s DNS panel for `kuehl.one`, create these CNAME records:
 
 | Name (Host)                | Type  | Value                                     |
 |----------------------------|-------|-------------------------------------------|
@@ -73,8 +73,8 @@ In Strato’s DNS panel for `kuehl.one`, create these CNAME records: [memory:cit
 
 Notes:
 
-- In Strato’s UI, you typically enter just the prefix (e.g. `_acme-challenge.adguard`), and Strato appends `.kuehl.one` automatically. [memory:cite:106][memory:cite:14]
-- The trailing dot in the FQDN may or may not be required by the UI; Strato often appends it automatically. [memory:cite:106]
+- In Strato’s UI, you typically enter just the prefix (e.g. `_acme-challenge.adguard`), and Strato appends `.kuehl.one` automatically.
+- The trailing dot in the FQDN may or may not be required by the UI; Strato often appends it automatically.
 
 Check later with `dig`:
 
@@ -84,13 +84,13 @@ dig @1.1.1.1 _acme-challenge.paperless.kuehl.one CNAME +short
 dig @1.1.1.1 _acme-challenge.homeassistant.kuehl.one CNAME +short
 ```
 
-Each should resolve to `_acme-challenge.klarwasser.dedyn.io.` before you issue the cert. [memory:cite:14]
+Each should resolve to `_acme-challenge.klarwasser.dedyn.io.` before you issue the cert.
 
 ---
 
 ## Step 3: Install acme.sh (user `toto`)
 
-On the Pi, as user `toto`: [memory:cite:104][memory:cite:105]
+On the Pi, as user `toto`:
 
 ```bash
 curl https://get.acme.sh | sh
@@ -167,7 +167,7 @@ sudo ~/.acme.sh/acme.sh --install-cert \
   --reloadcmd      "docker restart paperless-caddy-1 adguard homeassistant"
 ```
 
-Adjust the reload command with your actual container names from `docker ps`. [memory:cite:107]
+Adjust the reload command with your actual container names from `docker ps`.
 
 Make the script executable:
 
@@ -175,7 +175,7 @@ Make the script executable:
 chmod +x issue-cert.sh
 ```
 
-First manual run (after CNAMEs have propagated): [memory:cite:105][memory:cite:106][memory:cite:14]
+First manual run (after CNAMEs have propagated):
 
 ```bash
 cd ~/github/tls
@@ -188,13 +188,13 @@ If this completes successfully, your certs should appear under:
 ls -l /etc/letsencrypt/live/kuehl.one/
 ```
 
-Caddy and other services already mount `/etc/letsencrypt` read‑only via Docker, so they will pick up the new certs. [memory:cite:107]
+Caddy and other services already mount `/etc/letsencrypt` read‑only via Docker, so they will pick up the new certs.
 
 ---
 
 ## Step 6: Systemd service and timer for automated renewal
 
-Instead of relying only on cron, you can run `acme.sh --cron` via a systemd user service for better logging. [memory:cite:105]
+Instead of relying only on cron, you can run `acme.sh --cron` via a systemd user service for better logging.
 
 ### 6.1 Create `systemd/acme-renew.service`
 
@@ -259,13 +259,13 @@ systemctl --user status acme-renew.service
 journalctl --user -u acme-renew.service
 ```
 
-The timer runs `acme.sh --cron` once per day; `acme.sh` itself decides when to actually renew each certificate and will run the `--install-cert` hooks as needed. [memory:cite:104][memory:cite:105]
+The timer runs `acme.sh --cron` once per day; `acme.sh` itself decides when to actually renew each certificate and will run the `--install-cert` hooks as needed.
 
 ---
 
 ## Step 7: Using the certificates in Docker (Caddy, etc.)
 
-Your Docker services mount `/etc/letsencrypt` read‑only. Example for Caddy: [memory:cite:107]
+Your Docker services mount `/etc/letsencrypt` read‑only. Example for Caddy:
 
 ```yaml
 services:
@@ -289,7 +289,7 @@ Other containers (AdGuard, Home Assistant, Paperless) just need the mounted cert
 
 On a new Pi or after OS reinstall:
 
-1. Install Docker, Caddy, and your service stacks as usual. [memory:cite:1][memory:cite:5]
+1. Install Docker, Caddy, and your service stacks as usual.
 2. Install `acme.sh` as user `toto`.
 3. Clone this repo to `~/github/tls`.
 4. Recreate `acme-env.sh` with your deSEC token.
