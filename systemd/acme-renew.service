@@ -1,0 +1,12 @@
+[Unit]
+Description=Renew ACME certificates (acme.sh)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=toto
+ExecStart=/home/toto/.acme.sh/acme.sh --cron --home /home/toto/.acme.sh
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=acme-renew
