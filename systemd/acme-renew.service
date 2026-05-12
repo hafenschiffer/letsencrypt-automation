@@ -2,11 +2,13 @@
 Description=Renew ACME certificates (acme.sh)
 After=network-online.target
 Wants=network-online.target
+Requires=docker.service
 
 [Service]
 Type=oneshot
 User=toto
-ExecStart=/home/toto/.acme.sh/acme.sh --cron --home /home/toto/.acme.sh
+ExecStart=/bin/bash /tools/tls-renewer/renew_service.sh
+SuccessExitStatus=0 2
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=acme-renew
