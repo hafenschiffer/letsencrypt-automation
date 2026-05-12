@@ -6,6 +6,7 @@ docker run --rm \
     --server letsencrypt \
     --dns dns_desec \
     --challenge-alias klarwasser.dedyn.io \
+    --dnssleep 300 \
     -d kuehl.one \
     -d adguard.kuehl.one \
     -d paperless.kuehl.one \
